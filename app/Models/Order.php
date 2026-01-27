@@ -60,7 +60,7 @@ class Order extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($order) {
             if (empty($order->order_number)) {
                 $order->order_number = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
@@ -175,6 +175,14 @@ class Order extends Model
     public function getTotalCommission(): float
     {
         return $this->items->sum('commission_amount');
+    }
+
+    /**
+     * Order has many order items
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 
     public function getTotalVendorAmount(): float

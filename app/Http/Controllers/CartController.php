@@ -86,7 +86,7 @@ class CartController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الإضافة إلى السلة: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء الإضافة إلى اVendorController.phpلسلة: ' . $e->getMessage()
             ], 500);
         }
     }

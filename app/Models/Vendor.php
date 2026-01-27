@@ -38,11 +38,32 @@ class Vendor extends Model
         'approved_at' => 'datetime',
     ];
 
+    // Relationships
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(VendorTransaction::class);
+    }
+
     // Auto-generate slug
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($vendor) {
             if (empty($vendor->slug)) {
                 $vendor->slug = Str::slug($vendor->shop_name);
@@ -66,27 +87,6 @@ class Vendor extends Model
         return $this->status === 'approved' && $this->user->isActive();
     }
 
-    // Relationships
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function products()
-    {
-        return $this->hasMany(Product::class);
-    }
-
-    public function orderItems()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
-
-    public function transactions()
-    {
-        return $this->hasMany(VendorTransaction::class);
-    }
-
     // Scopes
     public function scopeApproved($query)
     {
@@ -101,27 +101,27 @@ class Vendor extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'approved')
-                     ->whereHas('user', function($q) {
-                         $q->where('status', 'active');
-                     });
+            ->whereHas('user', function($q) {
+                $q->where('status', 'active');
+            });
     }
 
     // Helpers
     public function getTotalSales()
     {
         return $this->orderItems()
-                    ->whereHas('order', function($q) {
-                        $q->where('payment_status', 'paid');
-                    })
-                    ->sum('vendor_amount');
+            ->whereHas('order', function($q) {
+                $q->where('payment_status', 'paid');
+            })
+            ->sum('vendor_amount');
     }
 
     public function getTotalCommission()
     {
         return $this->orderItems()
-                    ->whereHas('order', function($q) {
-                        $q->where('payment_status', 'paid');
-                    })
-                    ->sum('commission_amount');
+            ->whereHas('order', function($q) {
+                $q->where('payment_status', 'paid');
+            })
+            ->sum('commission_amount');
     }
 }

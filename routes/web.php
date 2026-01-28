@@ -215,6 +215,14 @@ Route::middleware(['auth', 'vendor'])->prefix('vendor')->name('vendor.')->group(
     });
 });
 
+
+// Vendor Registration (Public)
+Route::get('/vendor/register', function () {
+    return view('vendor.register');
+})->name('vendor.register');
+
+Route::post('/vendor/register', [App\Http\Controllers\VendorRegistrationController::class, 'store'])->name('vendor.store');
+
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes

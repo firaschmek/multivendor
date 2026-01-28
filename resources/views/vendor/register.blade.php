@@ -9,7 +9,7 @@
         <p class="text-xl text-gray-600">ابدأ في بيع منتجاتك لآلاف العملاء في تونس</p>
     </div>
 
-    <!-- Benefits -->
+    <!-- المزايا -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div class="bg-white rounded-lg shadow-md p-6 text-center">
             <div class="bg-blue-100 w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -42,16 +42,16 @@
         </div>
     </div>
 
-    <!-- Registration Form -->
+    <!-- نموذج التسجيل -->
     <div class="bg-white rounded-lg shadow-lg p-8">
         <h2 class="text-2xl font-bold mb-6">نموذج التسجيل</h2>
-        
+
         @guest
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
             <p class="text-gray-700">
-                يجب أن يكون لديك حساب أولاً. 
+                يجب أن يكون لديك حساب أولاً.
                 <a href="{{ route('register') }}" class="text-blue-600 hover:text-blue-800 font-medium">سجل الآن</a>
-                أو 
+                أو
                 <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 font-medium">سجل الدخول</a>
             </p>
         </div>
@@ -60,18 +60,18 @@
         <form method="POST" action="{{ route('vendor.store') }}" enctype="multipart/form-data">
             @csrf
 
-            <!-- Shop Name -->
+            <!-- اسم المتجر -->
             <div class="mb-6">
                 <label class="block text-sm font-medium mb-2">اسم المتجر *</label>
                 <input type="text" name="shop_name" required
                        value="{{ old('shop_name') }}"
                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 @error('shop_name')
-                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                 @enderror
             </div>
 
-            <!-- Shop Name Arabic -->
+            <!-- اسم المتجر بالعربية -->
             <div class="mb-6">
                 <label class="block text-sm font-medium mb-2">اسم المتجر بالعربية *</label>
                 <input type="text" name="shop_name_ar" required
@@ -79,22 +79,22 @@
                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                        dir="rtl">
                 @error('shop_name_ar')
-                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                 @enderror
             </div>
 
-            <!-- Description -->
+            <!-- وصف المتجر -->
             <div class="mb-6">
                 <label class="block text-sm font-medium mb-2">وصف المتجر</label>
                 <textarea name="description_ar" rows="4"
                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           dir="rtl">{{ old('description_ar') }}</textarea>
                 @error('description_ar')
-                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                 @enderror
             </div>
 
-            <!-- Contact Information -->
+            <!-- معلومات التواصل -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                     <label class="block text-sm font-medium mb-2">رقم الهاتف *</label>
@@ -103,7 +103,7 @@
                            placeholder="+216 20 123 456"
                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('phone')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -113,23 +113,23 @@
                            value="{{ old('email') }}"
                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('email')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
 
-            <!-- Address -->
+            <!-- العنوان -->
             <div class="mb-6">
                 <label class="block text-sm font-medium mb-2">العنوان *</label>
                 <textarea name="address_ar" rows="2" required
                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           dir="rtl">{{ old('address_ar') }}</textarea>
                 @error('address_ar')
-                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                 @enderror
             </div>
 
-            <!-- Business Information -->
+            <!-- معلومات العمل -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                     <label class="block text-sm font-medium mb-2">رقم السجل التجاري</label>
@@ -137,7 +137,7 @@
                            value="{{ old('tax_number') }}"
                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('tax_number')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -147,12 +147,12 @@
                            value="{{ old('business_license') }}"
                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('business_license')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
 
-            <!-- Terms -->
+            <!-- الموافقة على الشروط -->
             <div class="mb-6">
                 <label class="flex items-start">
                     <input type="checkbox" name="terms" required class="mt-1 ml-2">
@@ -161,24 +161,24 @@
                     </span>
                 </label>
                 @error('terms')
-                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                 @enderror
             </div>
 
-            <!-- Submit -->
-            <button type="submit" 
+            <!-- زر الإرسال -->
+            <button type="submit"
                     class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-bold"
                     @guest disabled @endguest>
                 @guest
-                    يجب تسجيل الدخول أولاً
+                يجب تسجيل الدخول أولاً
                 @else
-                    إرسال طلب التسجيل
+                إرسال طلب التسجيل
                 @endguest
             </button>
         </form>
     </div>
 
-    <!-- How it Works -->
+    <!-- كيف تبدأ؟ -->
     <div class="mt-12">
         <h2 class="text-2xl font-bold text-center mb-8">كيف تبدأ؟</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">

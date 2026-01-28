@@ -20,31 +20,31 @@ class VendorProductController extends Controller
     public function index(Request $request)
     {
         $vendor = Auth::user()->vendor;
-        
+
         $query = $vendor->products()->with('category', 'images');
 
-        // Search
-        if ($request->has('search')) {
+        // Search - FIXED: Use filled() instead of has()
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('name_ar', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
+                    ->orWhere('name_ar', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%");
             });
         }
 
-        // Filter by category
-        if ($request->has('category') && $request->category) {
+        // Filter by category - FIXED
+        if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
 
-        // Filter by status
-        if ($request->has('status') && $request->status !== '') {
+        // Filter by status - FIXED
+        if ($request->filled('status')) {
             $query->where('is_active', $request->status);
         }
 
-        // Filter by stock
-        if ($request->has('stock')) {
+        // Filter by stock - FIXED
+        if ($request->filled('stock')) {
             if ($request->stock === 'out') {
                 $query->where('quantity', 0);
             } elseif ($request->stock === 'low') {
@@ -118,7 +118,7 @@ class VendorProductController extends Controller
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $image) {
                     $path = $image->store('products', 'public');
-                    
+
                     ProductImage::create([
                         'product_id' => $product->id,
                         'image_path' => $path,
@@ -136,7 +136,7 @@ class VendorProductController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()
                 ->back()
                 ->withInput()
@@ -232,10 +232,10 @@ class VendorProductController extends Controller
             // Handle new image uploads
             if ($request->hasFile('images')) {
                 $lastOrder = $product->images()->max('sort_order') ?? -1;
-                
+
                 foreach ($request->file('images') as $index => $image) {
                     $path = $image->store('products', 'public');
-                    
+
                     ProductImage::create([
                         'product_id' => $product->id,
                         'image_path' => $path,
@@ -253,7 +253,7 @@ class VendorProductController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()
                 ->back()
                 ->withInput()
@@ -339,7 +339,7 @@ class VendorProductController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()
                 ->back()
                 ->with('error', 'Failed to delete product: ' . $e->getMessage());

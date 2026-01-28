@@ -10,24 +10,30 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $featuredProducts = Product::active()
-            ->featured()
-            ->with(['vendor', 'primaryImage', 'category'])
+        // Get all active categories
+        $categories = Category::whereNull('parent_id')
+            ->withCount(['products' => function ($query) {
+                $query->where('is_active', true);
+            }])
+            ->orderBy('name')
+            ->get();
+
+        // Get featured products (you can add is_featured column or use high-rated products)
+        $featuredProducts = Product::with(['vendor', 'images', 'reviews'])
+            ->where('is_active', true)
+            ->where('quantity', '>', 0)
+            ->inRandomOrder()
             ->limit(8)
             ->get();
 
-        $newProducts = Product::active()
-            ->with(['vendor', 'primaryImage', 'category'])
-            ->latest('published_at')
+        // Get newest products
+        $newProducts = Product::with(['vendor', 'images'])
+            ->where('is_active', true)
+            ->where('quantity', '>', 0)
+            ->latest()
             ->limit(8)
             ->get();
 
-        $categories = Category::active()
-            ->parent()
-            ->ordered()
-            ->withCount('products')
-            ->get();
-
-        return view('home', compact('featuredProducts', 'newProducts', 'categories'));
+        return view('home', compact('categories', 'featuredProducts', 'newProducts'));
     }
 }

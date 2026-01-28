@@ -20,6 +20,7 @@ use App\Http\Controllers\Vendor\VendorTransactionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReviewController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes

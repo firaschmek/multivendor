@@ -57,12 +57,17 @@
             <div class="flex items-center gap-2 mb-4">
                 <div class="flex">
                     @for($i = 1; $i <= 5; $i++)
-                    <svg class="w-5 h-5 {{ $i <= $product->average_rating ? 'text-yellow-400' : 'text-gray-300' }}" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                    </svg>
+                    @if($i <= floor($product->average_rating))
+                    <i class="fas fa-star text-yellow-400"></i>
+                    @elseif($i - 0.5 <= $product->average_rating)
+                    <i class="fas fa-star-half-alt text-yellow-400"></i>
+                    @else
+                    <i class="far fa-star text-gray-300"></i>
+                    @endif
                     @endfor
                 </div>
                 <span class="text-gray-600">{{ number_format($product->average_rating, 1) }} ({{ $product->reviews_count }} تقييم)</span>
+                <a href="#reviews-section" class="text-blue-600 hover:underline text-sm">عرض جميع التقييمات</a>
             </div>
             @endif
 
@@ -74,8 +79,8 @@
                     @if($product->compare_price && $product->compare_price > $product->price)
                     <span class="text-xl text-gray-400 line-through">{{ number_format($product->compare_price, 2) }} دت</span>
                     <span class="bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">
-                            خصم {{ round((($product->compare_price - $product->price) / $product->compare_price) * 100) }}%
-                        </span>
+                        خصم {{ round((($product->compare_price - $product->price) / $product->compare_price) * 100) }}%
+                    </span>
                     @endif
                 </div>
             </div>
@@ -102,7 +107,7 @@
                     </svg>
                     <span class="font-semibold">متوفر في المخزون</span>
                     @if($product->quantity <= 5)
-                    <span class="text-orange-500">(كمية محدودة)</span>
+                    <span class="text-orange-500">(كمية محدودة: {{ $product->quantity }} قطع)</span>
                     @endif
                 </div>
                 @else
@@ -143,6 +148,9 @@
                 <div class="space-y-2 text-gray-700">
                     <div><strong>رمز المنتج:</strong> {{ $product->sku }}</div>
                     <div><strong>الفئة:</strong> {{ $product->category->name_ar ?? $product->category->name }}</div>
+                    @if($product->weight)
+                    <div><strong>الوزن:</strong> {{ $product->weight }} كغ</div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -151,200 +159,277 @@
     <!-- Description -->
     <div class="mt-8 bg-white rounded-lg shadow-lg p-8">
         <h2 class="text-2xl font-bold mb-4">الوصف</h2>
-        <div class="prose max-w-none text-gray-700">
+        <div class="prose max-w-none text-gray-700 leading-relaxed">
             {!! nl2br(e($product->description_ar ?? $product->description)) !!}
         </div>
     </div>
 
     <!-- Reviews Section -->
-    <div class="mt-12 bg-white rounded-lg shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">تقييمات العملاء</h2>
+    <div class="mt-8 bg-white rounded-lg shadow-lg p-8" id="reviews-section">
+        <h2 class="text-2xl font-bold mb-6">تقييمات العملاء</h2>
 
-        <!-- Rating Summary -->
-        <div class="bg-gray-50 rounded-lg p-6 mb-6">
-            <div class="flex items-center gap-8">
+        {{-- ملخص التقييمات --}}
+        <div class="bg-gray-50 rounded-lg p-6 mb-8">
+            <div class="grid md:grid-cols-2 gap-8">
+                {{-- التقييم العام --}}
                 <div class="text-center">
-                    <div class="text-5xl font-bold text-gray-800">{{ number_format($product->average_rating, 1) }}</div>
-                    <div class="flex items-center justify-center gap-1 my-2">
+                    <div class="text-5xl font-bold text-gray-900 mb-2">
+                        {{ $product->reviews_count > 0 ? number_format($product->average_rating, 1) : '0.0' }}
+                    </div>
+                    <div class="flex justify-center items-center gap-1 mb-2">
                         @for($i = 1; $i <= 5; $i++)
-                        <i class="fas fa-star {{ $i <= $product->average_rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                        @if($i <= floor($product->average_rating))
+                        <i class="fas fa-star text-yellow-400 text-xl"></i>
+                        @elseif($i - 0.5 <= $product->average_rating)
+                        <i class="fas fa-star-half-alt text-yellow-400 text-xl"></i>
+                        @else
+                        <i class="far fa-star text-gray-300 text-xl"></i>
+                        @endif
                         @endfor
                     </div>
-                    <div class="text-sm text-gray-600">{{ $product->reviews_count }} تقييم</div>
+                    <p class="text-gray-600">بناءً على {{ $product->reviews_count }} تقييم</p>
                 </div>
 
-                <div class="flex-1">
+                {{-- توزيع التقييمات --}}
+                <div class="space-y-2">
                     @php
-                    $ratingDistribution = [
-                    5 => $product->reviews()->where('rating', 5)->count(),
-                    4 => $product->reviews()->where('rating', 4)->count(),
-                    3 => $product->reviews()->where('rating', 3)->count(),
-                    2 => $product->reviews()->where('rating', 2)->count(),
-                    1 => $product->reviews()->where('rating', 1)->count(),
+                    $ratingDistribution = [];
+                    for($i = 5; $i >= 1; $i--) {
+                    $count = $product->reviews()->where('rating', $i)->count();
+                    $percentage = $product->reviews_count > 0 ? ($count / $product->reviews_count) * 100 : 0;
+                    $ratingDistribution[$i] = [
+                    'count' => $count,
+                    'percentage' => round($percentage, 1)
                     ];
+                    }
                     @endphp
 
-                    @foreach([5,4,3,2,1] as $star)
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="text-sm text-gray-600 w-12">{{ $star }} نجوم</div>
+                    @foreach($ratingDistribution as $stars => $data)
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-gray-600 w-16">{{ $stars }} نجوم</span>
                         <div class="flex-1 bg-gray-200 rounded-full h-2">
-                            <div class="bg-yellow-400 h-2 rounded-full"
-                                 style="width: {{ $product->reviews_count > 0 ? ($ratingDistribution[$star] / $product->reviews_count * 100) : 0 }}%">
-                            </div>
+                            <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ $data['percentage'] }}%"></div>
                         </div>
-                        <div class="text-sm text-gray-600 w-12">{{ $ratingDistribution[$star] }}</div>
+                        <span class="text-sm text-gray-600 w-12 text-left">{{ $data['count'] }}</span>
                     </div>
                     @endforeach
                 </div>
             </div>
         </div>
 
-        <!-- Write Review Button -->
+        {{-- زر كتابة تقييم --}}
         @auth
         @php
-        $userReview = $product->reviews()->where('user_id', auth()->id())->first();
-        $hasPurchased = \App\Models\Order::where('user_id', auth()->id())
-        ->whereHas('orderItems', function($q) use ($product) {
-        $q->where('product_id', $product->id);
-        })
-        ->where('status', 'delivered')
-        ->exists();
+        $userReview = $product->reviews()->where('user_id', Auth::id())->first();
         @endphp
 
         @if(!$userReview)
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <button onclick="document.getElementById('reviewForm').classList.toggle('hidden')"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
-                <i class="fas fa-star ml-2"></i>اكتب تقييمك
+        <div class="mb-8">
+            <button onclick="document.getElementById('review-form').classList.toggle('hidden')"
+                    class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                <i class="fas fa-pen-alt ml-2"></i>
+                اكتب تقييمك
             </button>
-            @if($hasPurchased)
-            <span class="mr-4 text-sm text-green-600">
-                            <i class="fas fa-check-circle"></i> مشتري موثق
-                        </span>
-            @endif
         </div>
 
-        <!-- Review Form -->
-        <div id="reviewForm" class="bg-white rounded-lg border p-6 mb-6 hidden">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">اكتب تقييمك</h3>
+        {{-- نموذج إضافة تقييم --}}
+        <div id="review-form" class="hidden bg-white border rounded-lg p-6 mb-8">
+            <h3 class="text-xl font-semibold mb-4">شارك رأيك</h3>
             <form action="{{ route('reviews.store', $product) }}" method="POST">
                 @csrf
 
-                <!-- Rating -->
+                {{-- اختيار التقييم --}}
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">تقييمك *</label>
-                    <div class="flex gap-2" id="starRating">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">التقييم *</label>
+                    <div class="flex gap-2" id="star-rating">
                         @for($i = 1; $i <= 5; $i++)
-                        <button type="button" onclick="setRating({{ $i }})"
-                                class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition">
-                            <i class="fas fa-star"></i>
+                        <button type="button"
+                                class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition"
+                                data-rating="{{ $i }}">
+                            <i class="far fa-star"></i>
                         </button>
                         @endfor
                     </div>
-                    <input type="hidden" name="rating" id="ratingInput" required>
+                    <input type="hidden" name="rating" id="rating-input" required>
                     @error('rating')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <!-- Review Text -->
+                {{-- نص التقييم --}}
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">رأيك * (10 حروف على الأقل)</label>
-                    <textarea name="review" rows="4"
-                              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    <label for="review" class="block text-sm font-medium text-gray-700 mb-2">
+                        تقييمك * (10 أحرف على الأقل)
+                    </label>
+                    <textarea name="review" id="review" rows="4"
+                              class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="أخبرنا عن تجربتك مع المنتج..."
                               required minlength="10" maxlength="1000">{{ old('review') }}</textarea>
                     @error('review')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="flex gap-4">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
-                        إرسال التقييم
+                <div class="flex gap-3">
+                    <button type="submit"
+                            class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-check ml-2"></i>
+                        نشر التقييم
                     </button>
-                    <button type="button" onclick="document.getElementById('reviewForm').classList.add('hidden')"
-                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-3 rounded-lg">
+                    <button type="button"
+                            onclick="document.getElementById('review-form').classList.add('hidden')"
+                            class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">
                         إلغاء
                     </button>
                 </div>
             </form>
         </div>
-        @else
-        <!-- User's Review -->
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <div class="flex justify-between items-start">
-                <div>
-                    <div class="font-medium text-gray-800 mb-2">تقييمك</div>
-                    <div class="flex gap-1 mb-2">
-                        @for($i = 1; $i <= 5; $i++)
-                        <i class="fas fa-star {{ $i <= $userReview->rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
-                        @endfor
-                    </div>
-                    <p class="text-gray-700">{{ $userReview->review }}</p>
-                    <p class="text-sm text-gray-500 mt-2">{{ $userReview->created_at->format('d M Y') }}</p>
-                </div>
-                <form action="{{ route('reviews.destroy', $userReview) }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" onclick="return confirm('حذف تقييمك؟')"
-                            class="text-red-600 hover:text-red-800">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
         @endif
         @else
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 text-center">
-            <p class="text-gray-600">
-                <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 font-medium">تسجيل الدخول</a>
-                لكتابة تقييم
+        <div class="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p class="text-blue-800">
+                <i class="fas fa-info-circle ml-2"></i>
+                يرجى <a href="{{ route('login') }}" class="font-semibold underline hover:text-blue-900">تسجيل الدخول</a>
+                لترك تقييم على هذا المنتج
             </p>
         </div>
         @endauth
 
-        <!-- Reviews List -->
-        <div class="space-y-4">
-            @forelse($product->reviews()->with('user')->latest()->get() as $review)
-            <div class="bg-white rounded-lg border p-6">
-                <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        {{ substr($review->user->name, 0, 1) }}
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <div>
-                                <div class="font-medium text-gray-800">{{ $review->user->name }}</div>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <div class="flex gap-1">
-                                        @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star text-sm {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
-                                        @endfor
-                                    </div>
-                                    @if($review->verified_purchase)
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                                                <i class="fas fa-check-circle"></i> مشتري موثق
-                                            </span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="text-sm text-gray-500">{{ $review->created_at->format('d M Y') }}</div>
-                        </div>
-                        <p class="text-gray-700 mb-3">{{ $review->review }}</p>
-                        <button onclick="markHelpful({{ $review->id }})"
-                                class="text-sm text-gray-600 hover:text-blue-600">
-                            <i class="fas fa-thumbs-up"></i>
-                            مفيد (<span id="helpful-{{ $review->id }}">{{ $review->helpful_count }}</span>)
-                        </button>
+        {{-- عرض تقييم المستخدم الحالي --}}
+        @auth
+        @if($userReview)
+        <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h3 class="font-semibold text-lg">تقييمك</h3>
+                    <div class="flex items-center gap-2 mt-1">
+                        @for($i = 1; $i <= 5; $i++)
+                        <i class="fas fa-star {{ $i <= $userReview->rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                        @endfor
+                        @if($userReview->verified_purchase)
+                        <span class="bg-green-600 text-white text-xs px-2 py-1 rounded">
+                                        <i class="fas fa-check-circle"></i> مشتري موثق
+                                    </span>
+                        @endif
                     </div>
                 </div>
+                <div class="flex gap-2">
+                    <button onclick="document.getElementById('edit-review-{{ $userReview->id }}').classList.toggle('hidden')"
+                            class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-edit"></i> تعديل
+                    </button>
+                    <form action="{{ route('reviews.destroy', $userReview) }}" method="POST" class="inline"
+                          onsubmit="return confirm('هل أنت متأكد من حذف تقييمك؟')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <p class="text-gray-700">{{ $userReview->review }}</p>
+            <p class="text-sm text-gray-500 mt-2">
+                {{ $userReview->created_at->diffForHumans() }}
+            </p>
+
+            {{-- نموذج تعديل التقييم --}}
+            <div id="edit-review-{{ $userReview->id }}" class="hidden mt-4 pt-4 border-t">
+                <form action="{{ route('reviews.update', $userReview) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">التقييم *</label>
+                        <div class="flex gap-2" id="edit-star-rating-{{ $userReview->id }}">
+                            @for($i = 1; $i <= 5; $i++)
+                            <button type="button"
+                                    class="edit-star-btn text-3xl {{ $i <= $userReview->rating ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400 transition"
+                                    data-rating="{{ $i }}"
+                                    data-review-id="{{ $userReview->id }}">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            @endfor
+                        </div>
+                        <input type="hidden" name="rating" id="edit-rating-input-{{ $userReview->id }}" value="{{ $userReview->rating }}" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="edit-review" class="block text-sm font-medium text-gray-700 mb-2">تقييمك *</label>
+                        <textarea name="review" rows="4"
+                                  class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  required minlength="10" maxlength="1000">{{ $userReview->review }}</textarea>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="submit"
+                                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-save ml-2"></i>
+                            حفظ التعديلات
+                        </button>
+                        <button type="button"
+                                onclick="document.getElementById('edit-review-{{ $userReview->id }}').classList.add('hidden')"
+                                class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">
+                            إلغاء
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @endif
+        @endauth
+
+        {{-- قائمة جميع التقييمات --}}
+        <div class="space-y-6">
+            <h3 class="text-xl font-semibold mb-4">جميع التقييمات ({{ $product->reviews_count }})</h3>
+
+            @forelse($product->reviews()->with('user')->latest()->paginate(10) as $review)
+            <div class="border-b pb-6">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="font-semibold">{{ $review->user->name }}</span>
+                            @if($review->verified_purchase)
+                            <span class="bg-green-600 text-white text-xs px-2 py-1 rounded">
+                                        <i class="fas fa-check-circle"></i> مشتري موثق
+                                    </span>
+                            @endif
+                        </div>
+                        <div class="flex items-center gap-2">
+                            @for($i = 1; $i <= 5; $i++)
+                            <i class="fas fa-star {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                            @endfor
+                            <span class="text-sm text-gray-500">{{ $review->created_at->diffForHumans() }}</span>
+                        </div>
+                    </div>
+
+                    {{-- زر مفيد --}}
+                    @auth
+                    @if($review->user_id !== Auth::id())
+                    <button onclick="markHelpful({{ $review->id }})"
+                            class="text-gray-600 hover:text-blue-600 transition"
+                            id="helpful-btn-{{ $review->id }}">
+                        <i class="far fa-thumbs-up ml-1"></i>
+                        مفيد (<span id="helpful-count-{{ $review->id }}">{{ $review->helpful_count }}</span>)
+                    </button>
+                    @endif
+                    @endauth
+                </div>
+                <p class="text-gray-700">{{ $review->review }}</p>
             </div>
             @empty
-            <div class="bg-white rounded-lg border p-12 text-center">
-                <i class="fas fa-comments text-4xl text-gray-300 mb-3"></i>
-                <p class="text-gray-500">لا توجد تقييمات بعد. كن أول من يقيّم هذا المنتج!</p>
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-comments text-4xl mb-3"></i>
+                <p>لا توجد تقييمات بعد. كن أول من يقيم هذا المنتج!</p>
             </div>
             @endforelse
+
+            {{-- Pagination --}}
+            @if($product->reviews_count > 10)
+            <div class="mt-6">
+                {{ $product->reviews()->paginate(10)->links() }}
+            </div>
+            @endif
         </div>
     </div>
 </div>
@@ -367,40 +452,65 @@
         }
     }
 
-    // Star rating selection
-    function setRating(rating) {
-        document.getElementById('ratingInput').value = rating;
-        const stars = document.querySelectorAll('#starRating .star-btn i');
-        stars.forEach((star, index) => {
-            if (index < rating) {
-                star.classList.remove('text-gray-300');
-                star.classList.add('text-yellow-400');
-            } else {
-                star.classList.remove('text-yellow-400');
-                star.classList.add('text-gray-300');
-            }
-        });
-    }
+    // نموذج إضافة تقييم جديد
+    document.querySelectorAll('#star-rating .star-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const rating = this.dataset.rating;
+            document.getElementById('rating-input').value = rating;
 
-    // Mark review as helpful
+            // تحديث مظهر النجوم
+            document.querySelectorAll('#star-rating .star-btn').forEach((star, index) => {
+                const icon = star.querySelector('i');
+                if (index < rating) {
+                    icon.className = 'fas fa-star text-yellow-400';
+                } else {
+                    icon.className = 'far fa-star text-gray-300';
+                }
+            });
+        });
+    });
+
+    // نماذج تعديل التقييم
+    document.querySelectorAll('.edit-star-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const rating = this.dataset.rating;
+            const reviewId = this.dataset.reviewId;
+            document.getElementById(`edit-rating-input-${reviewId}`).value = rating;
+
+            // تحديث مظهر النجوم
+            document.querySelectorAll(`#edit-star-rating-${reviewId} .edit-star-btn`).forEach((star, index) => {
+                const icon = star.querySelector('i');
+                if (index < rating) {
+                    icon.className = 'fas fa-star text-yellow-400';
+                } else {
+                    icon.className = 'far fa-star text-gray-300';
+                }
+            });
+        });
+    });
+
+    // وظيفة وضع علامة مفيد
     function markHelpful(reviewId) {
         fetch(`/reviews/${reviewId}/helpful`, {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             }
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById(`helpful-${reviewId}`).textContent = data.helpful_count;
+                    document.getElementById(`helpful-count-${reviewId}`).textContent = data.helpful_count;
+                    const btn = document.getElementById(`helpful-btn-${reviewId}`);
+                    btn.classList.add('text-blue-600');
+                    btn.classList.remove('text-gray-600');
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('خطأ:', error));
     }
 
+    // Add to cart
     document.getElementById('addToCartForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 

@@ -16,7 +16,7 @@ class ReviewController extends Controller
     {
         // Check if user is authenticated
         if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Please login to leave a review.');
+            return redirect()->route('login')->with('error', 'يرجى تسجيل الدخول لترك تقييم');
         }
 
         // Check if user has already reviewed this product
@@ -25,13 +25,20 @@ class ReviewController extends Controller
             ->first();
 
         if ($existingReview) {
-            return redirect()->back()->with('error', 'You have already reviewed this product.');
+            return redirect()->back()->with('error', 'لقد قمت بتقييم هذا المنتج مسبقاً');
         }
 
         // Validate
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'review' => 'required|string|min:10|max:1000',
+        ], [
+            'rating.required' => 'يرجى اختيار التقييم',
+            'rating.min' => 'التقييم يجب أن يكون على الأقل نجمة واحدة',
+            'rating.max' => 'التقييم يجب أن لا يتجاوز 5 نجوم',
+            'review.required' => 'يرجى كتابة تقييمك',
+            'review.min' => 'التقييم يجب أن يحتوي على 10 أحرف على الأقل',
+            'review.max' => 'التقييم يجب أن لا يتجاوز 1000 حرف',
         ]);
 
         // Check if user has purchased this product
@@ -54,22 +61,30 @@ class ReviewController extends Controller
         // Update product rating
         $this->updateProductRating($product);
 
-        return redirect()->back()->with('success', 'Thank you for your review!');
+        return redirect()->back()->with('success', 'شكراً لك على تقييمك!');
     }
 
     /**
-     * Update a review
+     * Update an existing review
      */
     public function update(Request $request, Review $review)
     {
         // Check ownership
         if ($review->user_id !== Auth::id()) {
-            abort(403);
+            abort(403, 'غير مصرح لك بتعديل هذا التقييم');
         }
 
+        // Validate
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'review' => 'required|string|min:10|max:1000',
+        ], [
+            'rating.required' => 'يرجى اختيار التقييم',
+            'rating.min' => 'التقييم يجب أن يكون على الأقل نجمة واحدة',
+            'rating.max' => 'التقييم يجب أن لا يتجاوز 5 نجوم',
+            'review.required' => 'يرجى كتابة تقييمك',
+            'review.min' => 'التقييم يجب أن يحتوي على 10 أحرف على الأقل',
+            'review.max' => 'التقييم يجب أن لا يتجاوز 1000 حرف',
         ]);
 
         $review->update([
@@ -80,7 +95,7 @@ class ReviewController extends Controller
         // Update product rating
         $this->updateProductRating($review->product);
 
-        return redirect()->back()->with('success', 'Review updated successfully!');
+        return redirect()->back()->with('success', 'تم تحديث تقييمك بنجاح');
     }
 
     /**
@@ -90,7 +105,7 @@ class ReviewController extends Controller
     {
         // Check ownership
         if ($review->user_id !== Auth::id()) {
-            abort(403);
+            abort(403, 'غير مصرح لك بحذف هذا التقييم');
         }
 
         $product = $review->product;
@@ -99,7 +114,7 @@ class ReviewController extends Controller
         // Update product rating
         $this->updateProductRating($product);
 
-        return redirect()->back()->with('success', 'Review deleted successfully!');
+        return redirect()->back()->with('success', 'تم حذف التقييم بنجاح');
     }
 
     /**
@@ -108,7 +123,7 @@ class ReviewController extends Controller
     public function markHelpful(Review $review)
     {
         if (!Auth::check()) {
-            return response()->json(['error' => 'Please login'], 401);
+            return response()->json(['error' => 'يرجى تسجيل الدخول'], 401);
         }
 
         $review->increment('helpful_count');

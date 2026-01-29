@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Mail\VendorApprovedMail;
@@ -152,16 +153,19 @@ class AdminVendorController extends Controller
      */
     public function show(Vendor $vendor)
     {
-        $vendor->load(['user', 'products', 'orders']);
-        
+        $vendor->load(['user', 'products', 'orderItems.order', 'transactions']);
+
+        // Get unique orders for this vendor through orderItems
+        $vendorOrderIds = $vendor->orderItems()->pluck('order_id')->unique();
+
         // Calculate statistics
         $stats = [
             'total_products' => $vendor->products()->count(),
             'active_products' => $vendor->products()->where('is_active', true)->count(),
-            'total_orders' => $vendor->orders()->count(),
-            'pending_orders' => $vendor->orders()->where('status', 'pending')->count(),
-            'total_sales' => $vendor->orders()->where('status', 'completed')->sum('total_amount'),
-            'total_commission' => $vendor->transactions()->sum('platform_commission'),
+            'total_orders' => $vendorOrderIds->count(),
+            'pending_orders' => \App\Models\Order::whereIn('id', $vendorOrderIds)->where('status', 'pending')->count(),
+            'total_sales' => $vendor->getTotalSales(),
+            'total_commission' => $vendor->getTotalCommission(),
             'current_balance' => $vendor->balance,
         ];
 

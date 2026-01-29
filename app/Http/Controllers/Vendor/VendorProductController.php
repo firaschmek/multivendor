@@ -24,12 +24,13 @@ class VendorProductController extends Controller
         $query = $vendor->products()->with('category', 'images');
 
         // Search
-        if ($request->has('search')) {
-            $search = $request->search;
+        if ($request->filled('search')) {
+            $search = trim($request->search);
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('name_ar', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
+                  ->orWhere('sku', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -54,7 +55,7 @@ class VendorProductController extends Controller
             }
         }
 
-        $products = $query->latest()->paginate(12);
+        $products = $query->latest()->paginate(12)->withQueryString();
         $categories = Category::whereNull('parent_id')->get();
 
         return view('vendor.products.index', compact('products', 'categories'));

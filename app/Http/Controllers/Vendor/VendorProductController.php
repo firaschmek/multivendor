@@ -20,8 +20,9 @@ class VendorProductController extends Controller
     public function index(Request $request)
     {
         $vendor = Auth::user()->vendor;
-        
-        $query = $vendor->products()->with('category', 'images');
+
+        // Start with Product model and filter by vendor
+        $query = Product::where('vendor_id', $vendor->id)->with('category', 'images');
 
         // Search
         if ($request->filled('search')) {
@@ -35,7 +36,7 @@ class VendorProductController extends Controller
         }
 
         // Filter by category
-        if ($request->has('category') && $request->category) {
+        if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
 
@@ -45,7 +46,7 @@ class VendorProductController extends Controller
         }
 
         // Filter by stock
-        if ($request->has('stock')) {
+        if ($request->filled('stock')) {
             if ($request->stock === 'out') {
                 $query->where('quantity', 0);
             } elseif ($request->stock === 'low') {

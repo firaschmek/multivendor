@@ -16,6 +16,14 @@ class CartController extends Controller
         $this->cartService = $cartService;
     }
 
+    protected function getSessionId(): string
+    {
+        if (!session()->has('cart_session_id')) {
+            session()->put('cart_session_id', uniqid('cart_', true));
+        }
+        return session()->get('cart_session_id');
+    }
+
     public function index()
     {
         $cartItems = $this->cartService->getItems();
@@ -46,42 +54,47 @@ class CartController extends Controller
             // Add to cart
             if (auth()->check()) {
                 // Logged in user - save to database
-                $cartItem = CartItem::updateOrCreate(
-                    [
-                        'user_id' => auth()->id(),
-                        'product_id' => $product->id
-                    ],
-                    [
-                        'quantity' => \DB::raw('quantity + ' . $validated['quantity'])
-                    ]
-                );
-            } else {
-                // Guest - save to session
-                $cart = session()->get('cart', []);
+                $existingItem = CartItem::where('user_id', auth()->id())
+                    ->where('product_id', $product->id)
+                    ->first();
 
-                if (isset($cart[$product->id])) {
-                    $cart[$product->id]['quantity'] += $validated['quantity'];
+                if ($existingItem) {
+                    $existingItem->increment('quantity', $validated['quantity']);
                 } else {
-                    $cart[$product->id] = [
-                        'name' => $product->name,
-                        'price' => $product->price,
-                        'quantity' => $validated['quantity'],
-                        'image' => $product->primaryImage ? $product->primaryImage->image_path : null
-                    ];
+                    CartItem::create([
+                        'user_id' => auth()->id(),
+                        'product_id' => $product->id,
+                        'quantity' => $validated['quantity']
+                    ]);
                 }
+            } else {
+                // Guest - save to database with session_id
+                $sessionId = $this->getSessionId();
 
-                session()->put('cart', $cart);
+                $existingItem = CartItem::where('session_id', $sessionId)
+                    ->where('product_id', $product->id)
+                    ->first();
+
+                if ($existingItem) {
+                    $existingItem->increment('quantity', $validated['quantity']);
+                } else {
+                    CartItem::create([
+                        'session_id' => $sessionId,
+                        'product_id' => $product->id,
+                        'quantity' => $validated['quantity']
+                    ]);
+                }
             }
 
             // Get cart count
             $cartCount = auth()->check()
                 ? CartItem::where('user_id', auth()->id())->sum('quantity')
-                : array_sum(array_column(session()->get('cart', []), 'quantity'));
+                : CartItem::where('session_id', $this->getSessionId())->sum('quantity');
 
             return response()->json([
                 'success' => true,
                 'message' => 'تمت الإضافة إلى السلة بنجاح',
-                'cartCount' => $cartCount
+                'cart_count' => $cartCount
             ]);
 
         } catch (\Exception $e) {

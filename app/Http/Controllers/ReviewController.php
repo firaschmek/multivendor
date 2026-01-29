@@ -31,14 +31,14 @@ class ReviewController extends Controller
         // Validate
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
-            'review' => 'required|string|min:10|max:1000',
+            'comment' => 'required|string|min:10|max:1000',
         ], [
             'rating.required' => 'يرجى اختيار التقييم',
             'rating.min' => 'التقييم يجب أن يكون على الأقل نجمة واحدة',
             'rating.max' => 'التقييم يجب أن لا يتجاوز 5 نجوم',
-            'review.required' => 'يرجى كتابة تقييمك',
-            'review.min' => 'التقييم يجب أن يحتوي على 10 أحرف على الأقل',
-            'review.max' => 'التقييم يجب أن لا يتجاوز 1000 حرف',
+            'comment.required' => 'يرجى كتابة تقييمك',
+            'comment.min' => 'التقييم يجب أن يحتوي على 10 أحرف على الأقل',
+            'comment.max' => 'التقييم يجب أن لا يتجاوز 1000 حرف',
         ]);
 
         // Check if user has purchased this product
@@ -54,8 +54,8 @@ class ReviewController extends Controller
             'product_id' => $product->id,
             'user_id' => Auth::id(),
             'rating' => $request->rating,
-            'review' => $request->review,
-            'verified_purchase' => $hasPurchased,
+            'comment' => $request->comment,
+            'is_verified_purchase' => $hasPurchased,
         ]);
 
         // Update product rating
@@ -77,19 +77,19 @@ class ReviewController extends Controller
         // Validate
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
-            'review' => 'required|string|min:10|max:1000',
+            'comment' => 'required|string|min:10|max:1000',
         ], [
             'rating.required' => 'يرجى اختيار التقييم',
             'rating.min' => 'التقييم يجب أن يكون على الأقل نجمة واحدة',
             'rating.max' => 'التقييم يجب أن لا يتجاوز 5 نجوم',
-            'review.required' => 'يرجى كتابة تقييمك',
-            'review.min' => 'التقييم يجب أن يحتوي على 10 أحرف على الأقل',
-            'review.max' => 'التقييم يجب أن لا يتجاوز 1000 حرف',
+            'comment.required' => 'يرجى كتابة تقييمك',
+            'comment.min' => 'التقييم يجب أن يحتوي على 10 أحرف على الأقل',
+            'comment.max' => 'التقييم يجب أن لا يتجاوز 1000 حرف',
         ]);
 
         $review->update([
             'rating' => $request->rating,
-            'review' => $request->review,
+            'comment' => $request->comment,
         ]);
 
         // Update product rating
@@ -143,8 +143,8 @@ class ReviewController extends Controller
         $reviewsCount = $product->reviews()->count();
 
         $product->update([
-            'average_rating' => round($averageRating, 2),
-            'reviews_count' => $reviewsCount,
+            'rating_avg' => round($averageRating ?? 0, 2),
+            'rating_count' => $reviewsCount,
         ]);
     }
 }

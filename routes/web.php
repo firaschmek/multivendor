@@ -19,6 +19,7 @@ use App\Http\Controllers\Vendor\VendorShopController;
 use App\Http\Controllers\Vendor\VendorTransactionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\VendorRegistrationController;
 
 
 /*
@@ -45,10 +46,11 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
 });
 
-// Vendor Registration
+// Vendor Registration (public)
 Route::get('/vendor/register', function () {
     return view('vendor.register');
 })->name('vendor.register');
+Route::post('/vendor/register', [VendorRegistrationController::class, 'store'])->name('vendor.store')->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------

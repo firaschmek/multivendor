@@ -89,14 +89,27 @@ class AdminOrderController extends Controller
             'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled',
         ]);
 
-        $order->update([
-            'status' => $request->status,
-            $request->status . '_at' => now(),
-        ]);
+        // Build update data with safe timestamp columns
+        $updateData = ['status' => $request->status];
+
+        // Map status to timestamp column (whitelist approach for security)
+        $timestampColumns = [
+            'confirmed' => 'confirmed_at',
+            'processing' => 'processing_at',
+            'shipped' => 'shipped_at',
+            'delivered' => 'delivered_at',
+            'cancelled' => 'cancelled_at',
+        ];
+
+        if (isset($timestampColumns[$request->status])) {
+            $updateData[$timestampColumns[$request->status]] = now();
+        }
+
+        $order->update($updateData);
 
         return redirect()
             ->back()
-            ->with('success', 'Order status updated successfully!');
+            ->with('success', 'تم تحديث حالة الطلب بنجاح');
     }
 
     /**

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Vendor Dashboard') - {{ config('app.name', 'RahouThi3a') }}</title>
+    <title>@yield('title', 'لوحة البائع') - {{ config('app.name', 'السوق') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -26,30 +26,30 @@
                     </div>
                     @endif
                     <div>
-                        <div class="font-bold text-gray-800 truncate max-w-[150px]">{{ auth()->user()->vendor->shop_name }}</div>
-                        <div class="text-xs text-gray-500">Vendor Panel</div>
+                        <div class="font-bold text-gray-800 truncate max-w-[150px]">{{ auth()->user()->vendor->shop_name_ar ?? auth()->user()->vendor->shop_name }}</div>
+                        <div class="text-xs text-gray-500">لوحة البائع</div>
                     </div>
                 </a>
             </div>
             <nav class="flex-1 overflow-y-auto py-4">
                 <a href="{{ route('vendor.dashboard') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('vendor.dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-home w-5"></i><span>Dashboard</span>
+                    <i class="fas fa-home w-5"></i><span>الرئيسية</span>
                 </a>
                 <a href="{{ route('vendor.products.index') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('vendor.products.*') ? 'active' : '' }}">
-                    <i class="fas fa-box w-5"></i><span>Products</span>
+                    <i class="fas fa-box w-5"></i><span>المنتجات</span>
                 </a>
                 <a href="{{ route('vendor.orders.index') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('vendor.orders.*') ? 'active' : '' }}">
-                    <i class="fas fa-shopping-cart w-5"></i><span>Orders</span>
+                    <i class="fas fa-shopping-cart w-5"></i><span>الطلبات</span>
                 </a>
                 <a href="{{ route('vendor.transactions.index') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('vendor.transactions.*') ? 'active' : '' }}">
-                    <i class="fas fa-wallet w-5"></i><span>Earnings</span>
+                    <i class="fas fa-wallet w-5"></i><span>الأرباح</span>
                 </a>
                 <a href="{{ route('vendor.shop.edit') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('vendor.shop.*') ? 'active' : '' }}">
-                    <i class="fas fa-store w-5"></i><span>Shop Settings</span>
+                    <i class="fas fa-store w-5"></i><span>إعدادات المتجر</span>
                 </a>
                 <div class="border-t my-4"></div>
                 <a href="{{ route('home') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition">
-                    <i class="fas fa-external-link-alt w-5"></i><span>Visit Store</span>
+                    <i class="fas fa-external-link-alt w-5"></i><span>زيارة المتجر</span>
                 </a>
             </nav>
             <div class="border-t p-4">
@@ -65,7 +65,7 @@
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="w-full bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition text-sm font-medium">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        <i class="fas fa-sign-out-alt ml-2"></i>تسجيل الخروج
                     </button>
                 </form>
             </div>
@@ -75,13 +75,13 @@
         <header class="bg-white shadow-sm border-b">
             <div class="px-6 py-4 flex items-center justify-between">
                 <button onclick="toggleSidebar()" class="md:hidden text-gray-600"><i class="fas fa-bars text-xl"></i></button>
-                <h1 class="text-xl font-bold text-gray-800">@yield('page-title', 'Dashboard')</h1>
+                <h1 class="text-xl font-bold text-gray-800">@yield('page-title', 'لوحة التحكم')</h1>
                 <div class="flex items-center gap-4">
                     <div class="hidden sm:flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg">
                         <i class="fas fa-wallet text-green-600"></i>
                         <div>
-                            <div class="text-xs text-gray-600">Balance</div>
-                            <div class="font-bold text-green-600">{{ number_format(auth()->user()->vendor->balance, 2) }} TND</div>
+                            <div class="text-xs text-gray-600">الرصيد</div>
+                            <div class="font-bold text-green-600">{{ number_format(auth()->user()->vendor->balance, 2) }} د.ت</div>
                         </div>
                     </div>
                 </div>

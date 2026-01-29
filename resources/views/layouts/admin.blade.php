@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin Dashboard') - {{ config('app.name', 'RahouThi3a') }}</title>
+    <title>@yield('title', 'لوحة التحكم') - {{ config('app.name', 'السوق') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -20,10 +20,10 @@
             <div class="p-6 border-b">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-bold">
-                        A
+                        م
                     </div>
                     <div>
-                        <div class="font-bold text-gray-800">Admin Panel</div>
+                        <div class="font-bold text-gray-800">لوحة الإدارة</div>
                         <div class="text-xs text-gray-500">{{ config('app.name') }}</div>
                     </div>
                 </a>
@@ -32,44 +32,44 @@
             <nav class="flex-1 overflow-y-auto py-4">
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <i class="fas fa-home w-5"></i>
-                    <span>Dashboard</span>
+                    <span>الرئيسية</span>
                 </a>
 
                 <a href="{{ route('admin.vendors.index') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('admin.vendors.*') ? 'active' : '' }}">
                     <i class="fas fa-store w-5"></i>
-                    <span>Vendors</span>
+                    <span>البائعون</span>
                 </a>
 
                 <a href="{{ route('admin.products.index') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
                     <i class="fas fa-box w-5"></i>
-                    <span>Products</span>
+                    <span>المنتجات</span>
                 </a>
 
                 <a href="{{ route('admin.orders.index') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                     <i class="fas fa-shopping-cart w-5"></i>
-                    <span>Orders</span>
+                    <span>الطلبات</span>
                 </a>
 
                 <a href="{{ route('admin.categories.index') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                     <i class="fas fa-tags w-5"></i>
-                    <span>Categories</span>
+                    <span>الأقسام</span>
                 </a>
 
                 <a href="{{ route('admin.customers.index') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
                     <i class="fas fa-users w-5"></i>
-                    <span>Customers</span>
+                    <span>العملاء</span>
                 </a>
 
                 <a href="{{ route('admin.payouts.index') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition {{ request()->routeIs('admin.payouts.*') ? 'active' : '' }}">
                     <i class="fas fa-money-bill-wave w-5"></i>
-                    <span>Payouts</span>
+                    <span>المدفوعات</span>
                 </a>
 
                 <div class="border-t my-4"></div>
 
                 <a href="{{ route('home') }}" class="sidebar-link flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 transition">
                     <i class="fas fa-external-link-alt w-5"></i>
-                    <span>Visit Store</span>
+                    <span>زيارة المتجر</span>
                 </a>
             </nav>
 
@@ -86,7 +86,7 @@
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="w-full bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition text-sm font-medium">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        <i class="fas fa-sign-out-alt ml-2"></i>تسجيل الخروج
                     </button>
                 </form>
             </div>
@@ -97,9 +97,9 @@
     <div class="flex-1 flex flex-col overflow-hidden">
         <header class="bg-white shadow-sm border-b">
             <div class="px-6 py-4 flex items-center justify-between">
-                <h1 class="text-xl font-bold text-gray-800">@yield('page-title', 'Dashboard')</h1>
+                <h1 class="text-xl font-bold text-gray-800">@yield('page-title', 'لوحة التحكم')</h1>
                 <div class="flex items-center gap-4">
-                    <span class="text-sm text-gray-600">{{ now()->format('l, d F Y') }}</span>
+                    <span class="text-sm text-gray-600">{{ now()->format('Y-m-d') }}</span>
                 </div>
             </div>
         </header>

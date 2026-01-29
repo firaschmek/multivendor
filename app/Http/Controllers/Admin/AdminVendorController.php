@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Mail\VendorApprovedMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -277,14 +279,18 @@ class AdminVendorController extends Controller
      */
     public function approve(Vendor $vendor)
     {
-        $vendor->update(['status' => 'approved']);
+        $vendor->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
 
-        // TODO: Send approval notification email
-        // Mail::to($vendor->user->email)->send(new VendorApprovedMail($vendor));
+        // Send approval notification email
+        $vendor->load('user');
+        Mail::to($vendor->user->email)->send(new VendorApprovedMail($vendor));
 
         return redirect()
             ->back()
-            ->with('success', 'Vendor approved successfully!');
+            ->with('success', 'تم قبول البائع بنجاح!');
     }
 
     /**

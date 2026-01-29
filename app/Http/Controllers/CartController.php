@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\CartItem;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 
@@ -35,7 +36,7 @@ class CartController extends Controller
             $product = Product::findOrFail($validated['product_id']);
 
             // Check stock
-            if ($product->stock < $validated['quantity']) {
+            if ($product->quantity < $validated['quantity']) {
                 return response()->json([
                     'success' => false,
                     'message' => 'الكمية المطلوبة غير متوفرة في المخزون'
@@ -63,9 +64,9 @@ class CartController extends Controller
                 } else {
                     $cart[$product->id] = [
                         'name' => $product->name,
-                        'price' => $product->final_price,
+                        'price' => $product->price,
                         'quantity' => $validated['quantity'],
-                        'image' => $product->primary_image
+                        'image' => $product->primaryImage ? $product->primaryImage->image_path : null
                     ];
                 }
 
@@ -86,7 +87,7 @@ class CartController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الإضافة إلى اVendorController.phpلسلة: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء الإضافة إلى السلة: ' . $e->getMessage()
             ], 500);
         }
     }

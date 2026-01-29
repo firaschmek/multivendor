@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Services\CartService;
 use App\Services\OrderService;
+use App\Mail\OrderConfirmationMail;
+use App\Mail\VendorNewOrderMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -66,6 +69,21 @@ class CheckoutController extends Controller
             ];
 
             $order = $this->orderService->createFromCart($shippingData, $validated['payment_method']);
+
+            // Load order with relationships for emails
+            $order->load(['user', 'orderItems.product.vendor.user']);
+
+            // Send order confirmation email to customer
+            Mail::to($order->user->email)->send(new OrderConfirmationMail($order));
+
+            // Send notification to each vendor with their items
+            $vendorItems = $order->orderItems->groupBy('vendor_id');
+            foreach ($vendorItems as $vendorId => $items) {
+                $vendor = $items->first()->product->vendor;
+                if ($vendor && $vendor->email) {
+                    Mail::to($vendor->email)->send(new VendorNewOrderMail($order, $vendor, $items));
+                }
+            }
 
             return redirect()->route('orders.show', $order->id)
                 ->with('success', 'تم إنشاء الطلب بنجاح! رقم الطلب: ' . $order->order_number);

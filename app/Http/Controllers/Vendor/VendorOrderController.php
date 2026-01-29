@@ -101,7 +101,7 @@ class VendorOrderController extends Controller
 
         // Calculate vendor's portion
         $vendorTotal = $order->orderItems->sum(function($item) {
-            return $item->subtotal - $item->platform_commission;
+            return $item->subtotal - $item->commission_amount;
         });
 
         return view('vendor.orders.show', compact('order', 'vendorTotal'));
@@ -140,11 +140,22 @@ class VendorOrderController extends Controller
                 ->with('error', 'Invalid status transition.');
         }
 
-        // Update status
-        $order->update([
-            'status' => $request->status,
-            $request->status . '_at' => now(),
-        ]);
+        // Build update data with safe timestamp columns
+        $updateData = ['status' => $request->status];
+
+        // Map status to timestamp column (whitelist approach)
+        $timestampColumns = [
+            'confirmed' => 'confirmed_at',
+            'processing' => 'processing_at',
+            'shipped' => 'shipped_at',
+            'delivered' => 'delivered_at',
+        ];
+
+        if (isset($timestampColumns[$request->status])) {
+            $updateData[$timestampColumns[$request->status]] = now();
+        }
+
+        $order->update($updateData);
 
         // If status is confirmed, mark payment as paid for COD
         if ($request->status === 'confirmed' && $order->payment_method === 'cod') {
@@ -156,7 +167,7 @@ class VendorOrderController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', 'Order status updated successfully!');
+            ->with('success', 'تم تحديث حالة الطلب بنجاح!');
     }
 
     /**
@@ -184,7 +195,7 @@ class VendorOrderController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', 'Tracking number updated successfully!');
+            ->with('success', 'تم تحديث رقم التتبع بنجاح!');
     }
 
     /**
@@ -214,7 +225,7 @@ class VendorOrderController extends Controller
         ]);
 
         $vendorTotal = $order->orderItems->sum('subtotal');
-        $vendorCommission = $order->orderItems->sum('platform_commission');
+        $vendorCommission = $order->orderItems->sum('commission_amount');
         $vendorEarnings = $vendorTotal - $vendorCommission;
 
         return view('vendor.orders.invoice', compact(

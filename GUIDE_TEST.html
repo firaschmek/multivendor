@@ -213,27 +213,54 @@
 
         <!-- Test Accounts -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-8 text-white">
-            <h2 class="text-2xl font-bold mb-6">حسابات الاختبار</h2>
+            <h2 class="text-2xl font-bold mb-6">حسابات الاختبار الجاهزة</h2>
 
-            <div class="grid md:grid-cols-3 gap-4">
+            <div class="grid md:grid-cols-2 gap-4">
+                <!-- Admin -->
                 <div class="bg-white/10 backdrop-blur rounded-xl p-4">
-                    <h3 class="font-bold mb-2">عميل</h3>
-                    <p class="text-sm opacity-90">البريد: customer@test.com</p>
-                    <p class="text-sm opacity-90">كلمة المرور: password</p>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">Admin</span>
+                        <h3 class="font-bold">مسؤول النظام</h3>
+                    </div>
+                    <p class="text-sm mb-1"><span class="opacity-70">البريد:</span> <code class="bg-white/20 px-2 py-0.5 rounded">admin@multivendor.tn</code></p>
+                    <p class="text-sm"><span class="opacity-70">كلمة المرور:</span> <code class="bg-white/20 px-2 py-0.5 rounded">password</code></p>
                 </div>
+
+                <!-- Customer -->
                 <div class="bg-white/10 backdrop-blur rounded-xl p-4">
-                    <h3 class="font-bold mb-2">بائع</h3>
-                    <p class="text-sm opacity-90">البريد: vendor@test.com</p>
-                    <p class="text-sm opacity-90">كلمة المرور: password</p>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">Customer</span>
+                        <h3 class="font-bold">أحمد بن علي (عميل)</h3>
+                    </div>
+                    <p class="text-sm mb-1"><span class="opacity-70">البريد:</span> <code class="bg-white/20 px-2 py-0.5 rounded">customer@multivendor.tn</code></p>
+                    <p class="text-sm"><span class="opacity-70">كلمة المرور:</span> <code class="bg-white/20 px-2 py-0.5 rounded">password</code></p>
                 </div>
+
+                <!-- Vendor 1 -->
                 <div class="bg-white/10 backdrop-blur rounded-xl p-4">
-                    <h3 class="font-bold mb-2">مسؤول</h3>
-                    <p class="text-sm opacity-90">البريد: admin@test.com</p>
-                    <p class="text-sm opacity-90">كلمة المرور: password</p>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-purple-500 text-white text-xs px-2 py-1 rounded">Vendor</span>
+                        <h3 class="font-bold">محمد التونسي (متجر التقنية)</h3>
+                    </div>
+                    <p class="text-sm mb-1"><span class="opacity-70">البريد:</span> <code class="bg-white/20 px-2 py-0.5 rounded">vendor1@multivendor.tn</code></p>
+                    <p class="text-sm"><span class="opacity-70">كلمة المرور:</span> <code class="bg-white/20 px-2 py-0.5 rounded">password</code></p>
+                </div>
+
+                <!-- Vendor 2 -->
+                <div class="bg-white/10 backdrop-blur rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-purple-500 text-white text-xs px-2 py-1 rounded">Vendor</span>
+                        <h3 class="font-bold">فاطمة الصحراوي (مركز الموضة)</h3>
+                    </div>
+                    <p class="text-sm mb-1"><span class="opacity-70">البريد:</span> <code class="bg-white/20 px-2 py-0.5 rounded">vendor2@multivendor.tn</code></p>
+                    <p class="text-sm"><span class="opacity-70">كلمة المرور:</span> <code class="bg-white/20 px-2 py-0.5 rounded">password</code></p>
                 </div>
             </div>
 
-            <p class="text-sm mt-4 opacity-75">* قم بإنشاء هذه الحسابات في قاعدة البيانات للاختبار</p>
+            <div class="mt-6 p-4 bg-yellow-500/20 rounded-xl">
+                <p class="text-sm font-bold mb-1">ملاحظة مهمة:</p>
+                <p class="text-sm opacity-90">كلمة المرور لجميع الحسابات هي: <code class="bg-white/20 px-2 py-0.5 rounded font-bold">password</code></p>
+            </div>
         </div>
 
         <div class="text-center text-gray-500 mt-8">

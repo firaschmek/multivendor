@@ -3,11 +3,17 @@ nixPkgs = ['php82', 'php82Packages.composer', 'nodejs-18_x']
 
 [phases.install]
 cmds = [
-    'composer install --optimize-autoloader',
-    'npm ci',
-    'npm run build',
-    'chmod -R 775 storage bootstrap/cache'
+    'composer install --no-interaction --prefer-dist --optimize-autoloader',
+    'npm ci --no-audit',
+    'npm run build'
+]
+
+[phases.build]
+cmds = [
+    'chmod -R 775 storage bootstrap/cache',
+    'php artisan config:clear',
+    'php artisan cache:clear'
 ]
 
 [start]
-cmd = 'php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT'
+cmd = 'php artisan serve --host=0.0.0.0 --port=$PORT'
